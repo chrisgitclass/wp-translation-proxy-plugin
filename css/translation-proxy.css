@@ -1,0 +1,24 @@
+
+#translation-disclaimer {
+  display: none;
+  position: fixed;
+  height: 400px;
+  width: 800px;
+  top: 15%;
+  left: 50%;
+  margin-left: -400px;
+  padding: 80px 50px;
+  z-index: 9999;
+  background-color: #fff;
+  color: rgb(51, 51, 51);
+  font-size: 1.2em;
+
+}
+
+#translation-disclaimer.active {
+  display: block;
+}
+
+#translation-disclaimer-link {
+  font-size: .9em;
+}
