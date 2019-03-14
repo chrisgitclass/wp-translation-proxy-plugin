@@ -12,48 +12,6 @@
 
 class TranslationProxy
 {
-  /* Hooks used by wp super cache
-   *
-	// Post ID is received
-	add_action( 'wp_trash_post', 'wp_cache_post_edit', 0 );
-	add_action( 'publish_post', 'wp_cache_post_edit', 0 );
-	add_action( 'edit_post', 'wp_cache_post_change', 0 ); // leaving a comment called edit_post
-	add_action( 'delete_post', 'wp_cache_post_edit', 0 );
-	add_action( 'publish_phone', 'wp_cache_post_edit', 0 );
-
-	// Coment ID is received
-	add_action( 'trackback_post', 'wp_cache_get_postid_from_comment', 99 );
-	add_action( 'pingback_post', 'wp_cache_get_postid_from_comment', 99 );
-	add_action( 'comment_post', 'wp_cache_get_postid_from_comment', 99 );
-	add_action( 'edit_comment', 'wp_cache_get_postid_from_comment', 99 );
-	add_action( 'wp_set_comment_status', 'wp_cache_get_postid_from_comment', 99, 2 );
-
-	// No post_id is available
-	add_action( 'switch_theme', 'wp_cache_no_postid', 99 );
-	add_action( 'edit_user_profile_update', 'wp_cache_no_postid', 99 );
-	add_action( 'wp_update_nav_menu', 'wp_cache_clear_cache_on_menu' );
-	add_action( 'clean_post_cache', 'wp_cache_post_edit' );
-	add_action( 'transition_post_status', 'wpsc_post_transition', 10, 3 );
-
-	// Cron hooks
-	add_action( 'wp_cache_gc','wp_cache_gc_cron' );
-	add_action( 'wp_cache_gc_watcher', 'wp_cache_gc_watcher' );
-   */
-
-  /* Hooks used by varnish purge cache
-   *
-    // With Post ID
-    'save_post',                       // Fires onece a post has benn saved
-    'deleted_post',                    // Delete a post.
-    'trashed_post',                    // Empty Trashed post.
-    'edit_post',                       // Edit a post - includes leaving comments.
-    'delete_attachment',               // Delete an attachment - includes re-uploading.
-
-    // No Post ID
-    'switch_theme',                     // After a theme is changed.
-    'autoptimize_action_cachepurged,',  // Compat with https://wordpress.org/plugins/autoptimize/ plugin.
-   */
-
   /**
    * POST, PAGE
    *
@@ -130,72 +88,7 @@ class TranslationProxy
    *      save_post (publish) : on all the menu items
    *      wp_update_nav_menu  : only menu_id OOO
    */
-  public static $pageUpdateEvents = array(
-    'edit_post',                       // Fires onece an existing post has been updated
-    'save_post',                       // Fires onece a post has been saved
-    //'delete_post',                     // Fires immediately before a post is deleted from the database
-    'deleted_post',                    // Fires immediately after a post is deleted from the database
-    //'wp_trash_post',                   // Fires before a post is sent to the trash
-    'trashed_post',                    // Fires after a post is sent to the trash
-    'edit_attachment',                 // Fires onece an existing attachment has been updated
-    'delete_attachment',               // Fires before an attachment is deleted, includes re-uploading.
-    'transition_post_status',          // Fires when a post is transitioned from one status to another (publish to something)
-    //'clean_post_cache',                // Fires immediately after the given post's cache is cleaned
-  );
 
-  public static $siteUpdateEvents = array(
-    'switch_theme',                    // Fires after a theme is switched
-    'wp_update_nav_menu',              // Fires after naviagtion menu has been successfully updated
-    //'autoptimize_action_cachepurged,',  // Compat with https://wordpress.org/plugins/autoptimize/ plugin.
-  );
-
-  /**
-   * edit_post is enough
-   * save_post handle revision and more
-   */
-  //public static function on_save_post($post_id, $post) {
-  //  $url = get_permalink($post_id);
-  //  $status = $post->post_status;
-  //  self::dbg("SAVE_POST: $post_id $status $url");
-  //}
-
-  /**
-   * deleted_post cannot provide the url for cached one
-   */
-  //public static function on_deleted_post($post_id) {
-  //  $url = get_permalink($post_id);
-  //  self::dbg("DELETED_POST: $post_id $url");
-  //}
-
-  /**
-   * trashed_post cannot provide the url for cached one
-   */
-  //public static function on_trashed_post($post_id) {
-  //  $url = get_permalink($post_id);
-  //  self::dbg("TRASHED_POST: $post_id $url");
-  //}
-
-  /**
-   * For page and post,
-   *
-   * For attachment, cannot get the url to the attachment, must use delete_attachment
-   */
-  //public static function on_delete_post($post_id) {
-  //  $url = get_permalink($post_id);
-  //  self::dbg("DELETE_POST: $post_id $url");
-  //}
-
-  //public static function on_wp_trash_post($post_id) {
-  //  $url = get_permalink($post_id);
-  //  self::dbg("WP_TRASH_POST: $post_id $url");
-  //}
-
-  //public static function on_add_attachment($post_id) {
-  //  $url = wp_get_attachment_url($post_id);
-  //  self::dbg("ADD_ATTACHMENT: $post_id $url");
-  //}
-
-  //const DEBUG = true;
   public static $debug = true;
   public static $enabled = false;
 
@@ -250,12 +143,6 @@ class TranslationProxy
 
   public static function set_purge_hooks() {
     self::dbg('SET-HOOKS');
-    //add_action('save_post', 'TranslationProxy::on_save_post', 10, 2);
-    //add_action('deleted_post', 'TranslationProxy::on_deleted_post', 10, 1);
-    //add_action('trashed_post', 'TranslationProxy::on_trashed_post', 10, 1);
-    //add_action('delete_post', 'TranslationProxy::on_delete_post', 10, 1);
-    //add_action('wp_trash_post', 'TranslationProxy::on_wp_trash_post', 10, 1);
-    //add_action('add_attachment', 'TranslationProxy::on_add_attachment', 10, 1);
     add_action('edit_post', 'TranslationProxy::on_edit_post', 10, 2);
     add_action('transition_post_status', 'TranslationProxy::on_transition_post_status', 10, 3);
     add_action('edit_attachment', 'TranslationProxy::on_edit_attachment', 10, 1);
@@ -273,16 +160,9 @@ class TranslationProxy
   }
 
   public static function inject_lang_selector($buffer) {
-    //self::dbg($buffer);
-    //self::dbg('######################'); 
-    //self::dbg(strpos($buffer, 'Stay Connected')); 
-    //self::dbg('######################'); 
-    //$text = str_replace('Stay Connected', 'Yoshiaki Iinuma', $buffer);
-    //$text = str_replace($find, $replace, $buffer);
     $pos = strpos($buffer, self::LOCATION);
     $text = substr_replace($buffer, self::LANG_SELECT, $pos, 0);
     return $text;
-    //return $buffer;
   }
 
   public static function on_the_title($title) {
@@ -315,11 +195,9 @@ class TranslationProxy
   }
 
   public static function setup_admin() {
-    //add_menu_page('Translation Proxy', 'Translation Proxy Settings', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page', plugins_url('globe.png', __FILE__));
     add_menu_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
     add_options_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
     self::register_settings();
-    //add_action('admin_init', 'register_settings');
   }
 
   public static function admin_page() {
@@ -368,23 +246,7 @@ class TranslationProxy
 
   public static function initialize() {
     self::set_purge_request_controller();
-    //self::set_inject_hooks();
     self::set_purge_hooks();
-
-    /*
-    foreach(self::$pageUpdateEvents as $e) {
-      self::dbg($e);
-      //add_action($e, 'TranslationProxy::flush_single');
-      add_action($e, 'self::flush_single');
-    };
-
-    foreach(self::$siteUpdateEvents as $e) {
-      self::dbg($e);
-      //add_action($e, 'TranslationProxy::flush_all');
-      add_action($e, 'self::flush_all');
-    };
-     */
-
   }
 
   public static function activate($network_wide) {
