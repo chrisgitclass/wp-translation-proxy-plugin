@@ -305,7 +305,7 @@ class TranslationProxy
   const LANG_SELECT =<<<EOT
     <div class="notmobile statewide-banner-left">
       <div id="google_cloud_translation_selector">
-                           
+
 				<select id="lang_choices" onchange="changeLanguage(this)">
 				  <option value="" selected>Select Language</option>
 				  <option id="langopt-af" value="af">Afrikaans</option>
