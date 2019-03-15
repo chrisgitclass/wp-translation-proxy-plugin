@@ -178,14 +178,6 @@ class TranslationProxy
     return $title;
   }
 
-  /**
-   * DELETEME
-   */
-  public static function on_header_end() {
-    ob_end_flush();
-    error_log("HEADER END");
-  }
-
   public static function on_wp_head() {
     error_log("WP_HEAD");
     ob_start('TranslationProxy::inject_lang_selector');
@@ -195,9 +187,6 @@ class TranslationProxy
     error_log('SET INJECT HOOKS');
     add_action('wp_head', 'TranslationProxy::on_wp_head', 10);
     add_filter('the_title', 'TranslationProxy::on_the_title', 10, 1);
-    //add_action('wp_print_scripts', 'TranslationProxy::on_header_end', 10);
-    //add_action('wp_print_styles', 'TranslationProxy::on_header_end', 10);
-    //add_action('wp_enqueue_scripts', 'TranslationProxy::on_header_end', 10); //=> </html>
   }
 
   /**
