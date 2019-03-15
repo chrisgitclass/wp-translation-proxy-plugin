@@ -27,7 +27,7 @@ class TranslationProxy
    *  - publish: ### NO NEED
    *      edit_post publish
    *      save_post inherit (revision)
-   *      save_post publish 
+   *      save_post publish
    *
    *  - update published: OOO
    *      edit_post (publish) OOO
@@ -69,7 +69,7 @@ class TranslationProxy
    *      edit_attachment OOO attachment post page
    *
    *  - delete: OOO
-   *      delete_attachment OOO path to file, attachment post page 
+   *      delete_attachment OOO path to file, attachment post page
    *      delete_post *** attachment post page
    *
    *  - replace media: OOO
@@ -120,7 +120,7 @@ class TranslationProxy
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "DELETE_ATTACHMENT: $url");
-    self::purge_url($url, "DELETE_ATTACHMENT: $perma");
+    self::purge_url($perma, "DELETE_ATTACHMENT: $perma");
   }
 
   public static function on_update_attached_file($file, $post_id) {
@@ -148,7 +148,6 @@ class TranslationProxy
     add_action('edit_attachment', 'TranslationProxy::on_edit_attachment', 10, 1);
     add_action('delete_attachment', 'TranslationProxy::on_delete_attachment', 10, 1);
     add_filter('update_attached_file', 'TranslationProxy::on_update_attached_file', 10, 2);
-
     add_action('switch_theme', 'TranslationProxy::on_switch_theme');
     add_action('wp_update_nav_menu', 'TranslationProxy::on_wp_update_nav_menu', 10, 2);
   }
@@ -170,6 +169,9 @@ class TranslationProxy
     return $title;
   }
 
+  /**
+   * DELETEME
+   */
   public static function on_header_end() {
     ob_end_flush();
     error_log("HEADER END");
@@ -189,6 +191,9 @@ class TranslationProxy
     //add_action('wp_enqueue_scripts', 'TranslationProxy::on_header_end', 10); //=> </html>
   }
 
+  /**
+   * DELETEME
+   */
   public static function register_settings() {
     register_setting('tranlation-proxy-settings-group', 'general');
     register_setting('tranlation-proxy-settings-group', 'cache');
@@ -197,16 +202,23 @@ class TranslationProxy
   public static function setup_admin() {
     add_menu_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
     add_options_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
-    self::register_settings();
+    //self::register_settings();
   }
 
   public static function admin_page() {
+    $msg = 'Purge All request was sent to the proxy server.';
+    if (isset($_GET['http_code'])) {
+      $http_code = filter_var($_GET['http_code'], FILTER_SANITIZE_NUMBER_INT);
+      if ($http_code != '200') {
+        $msg = 'Purge All request was sent to the proxy server.';
+      }
+    }
     ?>
     <div id="translation_proxy_admin_panel" class="wrap">
       <h1>Translation Proxy Settings</h1>
       <?php if (isset($_GET['flash']) && $_GET['flash'] == '1') { ?>
         <div id='flash_message' class="updated fade">
-          <p><strong>Purge All request was sent to the proxy.</strong></p>
+          <p><strong><?php echo $msg; ?></strong></p>
         </div>
       <?php } ?>
       <form method="post" action="admin-post.php">
@@ -228,15 +240,15 @@ class TranslationProxy
     if (!current_user_can('manage_options') || wp_doing_ajax()) {
       wp_die('Not allowed');
     }
-    self::purge_all('HANDLE PURGE ALL');
+    $r = self::purge_all('HANDLE PURGE ALL');
+    $msg = 'Purge All request was sent to the proxy.';
 
     $url = add_query_arg(
-      array( 'page' => 'translation-proxy-settings', 'flash' => '1'),
+      array( 'page' => 'translation-proxy-settings', 'flash' => '1', 'http_code' => $r ),
       admin_url('options-general.php'));
     self::dbg("REDIRECTING TO $url");
 
     wp_redirect($url);
-
     exit;
   }
 
@@ -247,6 +259,31 @@ class TranslationProxy
   public static function initialize() {
     self::set_purge_request_controller();
     self::set_purge_hooks();
+  }
+
+  public static function default_plugin_options() {
+    return array(
+      'language_select_enabled' => false,
+      'language_select_for_entire_site' => false,
+      'language_select_allowed_ids' => ''
+    );
+  }
+
+  public static function create_plugin_options() {
+    $opts = self::default_plugin_options();
+    add_option('translation_proxy_options', $opts, '', 'yes');
+  }
+
+  public static function get_plugin_options() {
+    return get_option('translation_proxy_options');
+  }
+
+  public static function save_plugin_options($opts) {
+    update_option('translation_proxy_options', $opts);
+  }
+
+  public static function delete_plugin_options() {
+    delete_option('translation_proxy_options');
   }
 
   public static function activate($network_wide) {
@@ -261,9 +298,9 @@ class TranslationProxy
     self::dbg('TranslationProxy Got Deactivated!');
   }
 
-  function purge_all($msg = null) {
+  private static function purge_all($msg = null) {
     $url = home_url() . '/purge-proxy-cache?page=all';
-    self::purge_url($url, $msg);
+    return self::purge_url($url, $msg);
   }
 
   /**
@@ -276,13 +313,18 @@ class TranslationProxy
    *
    */
   public static function purge_url($url, $msg = null) {
+    $r = null;
     if (self::$enabled) {
       //$curl = curl_init($url);
       //curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PURGE");
       //curl_exec($curl);
+      //$r = curl_get_info($curl, CURLINFO_HTTP_CODE);
+      //curl_close($curl);
+      //self::dbg("RESULT: $r");
     }
     if (!is_null($msg)) self::dbg($msg);
     self::dbg("PURGE: $url");
+    return $r;
   }
 
   /**
@@ -431,13 +473,6 @@ EOT;
 
 }
 
-/**
- * MEMO
- *   init -> adimin_init
- *
-             current_user_can('manage_options') && !(wp_doing_ajax())
- */
-//add_action('init', 'TranslationProxy::set_purge_hooks');
 add_action('admin_init', 'TranslationProxy::initialize');
 add_action('admin_menu', 'TranslationProxy::setup_admin');
 register_activation_hook(__FILE__, 'TranslationProxy::activate');
