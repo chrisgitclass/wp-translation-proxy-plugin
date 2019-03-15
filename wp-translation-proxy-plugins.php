@@ -189,18 +189,9 @@ class TranslationProxy
     add_filter('the_title', 'TranslationProxy::on_the_title', 10, 1);
   }
 
-  /**
-   * DELETEME
-   */
-  public static function register_settings() {
-    register_setting('tranlation-proxy-settings-group', 'general');
-    register_setting('tranlation-proxy-settings-group', 'cache');
-  }
-
   public static function setup_admin() {
     add_menu_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
     add_options_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
-    //self::register_settings();
   }
 
   public static function admin_page() {
