@@ -159,6 +159,15 @@ class TranslationProxy
   }
 
   public static function inject_lang_selector($buffer) {
+    $opts = self::get_plugin_options();
+    $page_id = strval(get_queried_object_id());
+    if ($opts['language_select_enabled'] !== '1') return $buffer;
+    if ($opts['language_select_for_entire_site'] === '2') {
+      $allowed_ids = explode(',', $opts['language_select_allowed_ids']);
+      if (!in_array($page_id, $allowed_ids)) {
+        return $buffer;
+      }
+    }
     $pos = strpos($buffer, self::LOCATION);
     $text = substr_replace($buffer, self::LANG_SELECT, $pos, 0);
     return $text;
@@ -208,12 +217,12 @@ class TranslationProxy
   public static function admin_page() {
     $opts = self::get_plugin_options();
     $checked = '';
-    if (isset($opts['language_select_enabled']) && $opts['language_select_enabled'] == '1') {
+    if (isset($opts['language_select_enabled']) && $opts['language_select_enabled'] === '1') {
       $checked = 'checked';
     }
-    $entire_site = '0';
-    if (isset($opts['language_select_for_entire_site']) && $opts['language_select_for_entire_site'] == '1') {
-      $entire_site = '1';
+    $entire_site = '1';
+    if (isset($opts['language_select_for_entire_site']) && $opts['language_select_for_entire_site'] === '2') {
+      $entire_site = '2';
     }
     $ids = '';
     if (isset($opts['language_select_allowed_ids'])) {
@@ -268,21 +277,40 @@ class TranslationProxy
         <input type="checkbox" id="language_select_enabled" name="translation_proxy_settings[language_select_enabled]" value="1" <?php echo $checked; ?>>
       </p>
       <p>
-        <input type="radio" id="language_select_for_entire_site" name="translation_proxy_settings[language_select_for_entire_site]" value="1" <?php echo ($entire_site === '1') ? 'checked' : ''; ?>>
+        <input type="radio" id="language_select_for_entire_site1" name="translation_proxy_settings[language_select_for_entire_site]" value="1" <?php echo ($entire_site === '1') ? 'checked' : ''; ?>>
         <label for="language_select_for_entire_site">Entire Site</label>
       </p>
       <p>
-        <input type="radio" id="language_select_for_entire_site" name="translation_proxy_settings[language_select_for_entire_site]" value="0" <?php echo ($entire_site !== '1') ? 'checked' : ''; ?>>
-        <label for="language_select_for_entire_site">Selected Page</label>
+        <input type="radio" id="language_select_for_entire_site2" name="translation_proxy_settings[language_select_for_entire_site]" value="2" <?php echo ($entire_site === '2') ? 'checked' : ''; ?>>
+        <label for="language_select_for_entire_site">Selected Pages</label>
       </p>
       <p>
-        <label for="language_select_allowed_ids">Selected Post IDs</label>
+        <label for="language_select_allowed_ids">Selected Page IDs (comma separated)</label>
         <input type="text" id="language_select_allowed_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $ids; ?>">
       </p>
       <p class="submit">
         <input type="submit" value="Save Configuration" class="button-primary"/>
       </p>
       </form>
+      <script type="text/javascript">
+        function toggleLangSelectAllowedIdsInput(val) {
+          if (val === '2') {
+            jQuery('#language_select_allowed_ids').prop('readonly', false);
+          } else {
+            jQuery('#language_select_allowed_ids').prop('readonly', true);
+          }
+        }
+
+        jQuery(document).ready(function() {
+          var radio = jQuery("input[type='radio'][name='translation_proxy_settings[language_select_for_entire_site]']:checked")
+          toggleLangSelectAllowedIdsInput(radio.val());
+        });
+
+        jQuery("input[type='radio'][name='translation_proxy_settings[language_select_for_entire_site]']")
+          .click(function() {
+            toggleLangSelectAllowedIdsInput(this.value);
+          });
+      </script>
     </div>
     <?php
   }
@@ -315,6 +343,7 @@ class TranslationProxy
     $opts = self::validate_post($_POST);
 
     if ($opts) {
+      self::dbg($opts);
       self::save_plugin_options($opts);
     } else {
       $flash = '3';
@@ -330,14 +359,11 @@ class TranslationProxy
   }
 
   public static function validate_post($post) {
-    if (!isset($post['translation_proxy_settings'])) {
-      return false;
-    }
+    if (!isset($post['translation_proxy_settings'])) return false;
     $r = $post['translation_proxy_settings'];
-    if (isset($r['language_select_enabled']) && $r['language_select_enabled'] != '1') return false;
-    if ($r['language_select_for_entire_site'] !== '0' && $r['language_select_for_entire_site'] !== '1') return false;
-    if ($r['language_select_allowed_ids'] === '') return $r;
-    preg_match('/^ *\d+(, *\d+)* *$/', $r['language_select_allowed_ids'], $matches);
+    if (isset($r['language_select_enabled']) && $r['language_select_enabled'] !== '1') return false;
+    if ($r['language_select_for_entire_site'] !== '1' && $r['language_select_for_entire_site'] !== '2') return false;
+    preg_match('/^ *\d*(, *\d+)* *$/', $r['language_select_allowed_ids'], $matches);
     if (!$matches) return false;
     return $r;
   }
@@ -358,8 +384,8 @@ class TranslationProxy
 
   public static function default_plugin_options() {
     return array(
-      'language_select_enabled' => '0',
-      'language_select_for_entire_site' => '0',
+      //'language_select_enabled' => '0',
+      'language_select_for_entire_site' => '2',
       'language_select_allowed_ids' => ''
     );
   }
