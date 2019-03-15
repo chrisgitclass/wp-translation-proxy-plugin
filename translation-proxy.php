@@ -206,6 +206,22 @@ class TranslationProxy
   }
 
   public static function admin_page() {
+    $opts = self::get_plugin_options();
+    $checked = '';
+    if (isset($opts['language_select_enabled']) && $opts['language_select_enabled'] == '1') {
+      $checked = 'checked';
+    }
+    $entire_site = '0';
+    if (isset($opts['language_select_for_entire_site']) && $opts['language_select_for_entire_site'] == '1') {
+      $entire_site = '1';
+    }
+    $ids = '';
+    if (isset($opts['language_select_allowed_ids'])) {
+      preg_match('/^\d+(, *\d+)*$/', $opts['language_select_allowed_ids'], $matches);
+      if ($matches) {
+        $ids = $opts['language_select_allowed_ids'];
+      }
+    }
     $msg = 'Purge All request was sent to the proxy server.';
     if (isset($_GET['http_code'])) {
       $http_code = filter_var($_GET['http_code'], FILTER_SANITIZE_NUMBER_INT);
@@ -231,6 +247,33 @@ class TranslationProxy
         <input type="submit" value="Purge All" class="button-primary"/>
       </p>
       </form>
+
+      <form method="post" action="admin-post.php">
+
+       <input type="hidden" name="action" value="translation_proxy_update_options" />
+       <?php wp_nonce_field( 'translation_proxy' ); ?>
+
+      <h2>Language Select Dropdown</h2>
+      <p>
+        <label for="language_select_enabled">Enabled</label>
+        <input type="checkbox" id="language_select_enabled" name="translation_proxy_settings[language_select_enabled]" value="1" <?php echo $checked; ?>>
+      </p>
+      <p>
+        <input type="radio" id="language_select_for_entire_site" name="translation_proxy_settings[language_select_for_entire_site]" value="1" <?php echo ($entire_site === '1') ? 'checked' : ''; ?>>
+        <label for="language_select_for_entire_site">Entire Site</label>
+      </p>
+      <p>
+        <input type="radio" id="language_select_for_entire_site" name="translation_proxy_settings[language_select_for_entire_site]" value="0" <?php echo ($entire_site !== '1') ? 'checked' : ''; ?>>
+        <label for="language_select_for_entire_site">Selected Page</label>
+      </p>
+      <p>
+        <label for="language_select_allowed_ids">Selected Post IDs</label>
+        <input type="text" id="language_select_allowd_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $ids; ?>">
+      </p>
+      <p class="submit">
+        <input type="submit" value="Save Configuration" class="button-primary"/>
+      </p>
+      </form>
     </div>
     <?php
   }
@@ -241,7 +284,6 @@ class TranslationProxy
       wp_die('Not allowed');
     }
     $r = self::purge_all('HANDLE PURGE ALL');
-    $msg = 'Purge All request was sent to the proxy.';
 
     $url = add_query_arg(
       array( 'page' => 'translation-proxy-settings', 'flash' => '1', 'http_code' => $r ),
@@ -263,13 +305,17 @@ class TranslationProxy
 
   public static function default_plugin_options() {
     return array(
-      'language_select_enabled' => false,
-      'language_select_for_entire_site' => false,
+      'language_select_enabled' => '0',
+      'language_select_for_entire_site' => '0',
       'language_select_allowed_ids' => ''
     );
   }
 
   public static function create_plugin_options() {
+    $opts = self::get_plugin_options();
+    if ($opts) {
+      return;
+    }
     $opts = self::default_plugin_options();
     add_option('translation_proxy_options', $opts, '', 'yes');
   }
@@ -287,11 +333,27 @@ class TranslationProxy
   }
 
   public static function activate($network_wide) {
-    if (is_multisite() && $network_wide) {
-      self::dbg('TranslationProxy Network Activation is not allowed');
-      //wp_die('Network Activation is not enabled.');
+    global $wpdb;
+
+    if (is_multisite()) {
+      if ($network_wide) {
+        self::dbg('TranslationProxy Network Activated');
+        $original_id = get_current_blog_id();
+        self::dbg("Original Blog: $original_id");
+        $blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}' AND spam = '0' AND deleted = '0' AND archived = '0'");
+        foreach($blogs as $b) {
+          self::dbg("Switch to Blog: " . $b->blog_id);
+          switch_to_blog($b->blog_id);
+          self::create_plugin_options();
+        }
+        switch_to_blog($original_id);
+      } else {
+        wp_die('Network Activation Only.');
+      }
+    } else {
+      self::dbg('TranslationProxy Got Activated!');
+      self::create_plugin_options();
     }
-    self::dbg('TranslationProxy Got Activated!');
   }
 
   public static function deactivate() {
