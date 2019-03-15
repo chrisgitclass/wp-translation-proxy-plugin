@@ -222,17 +222,26 @@ class TranslationProxy
         $ids = $opts['language_select_allowed_ids'];
       }
     }
-    $msg = 'Purge All request was sent to the proxy server.';
-    if (isset($_GET['http_code'])) {
-      $http_code = filter_var($_GET['http_code'], FILTER_SANITIZE_NUMBER_INT);
-      if ($http_code != '200') {
+    $msg = null;
+    if (isset($_GET['flash'])) {
+      if ($_GET['flash'] == '1') {
         $msg = 'Purge All request was sent to the proxy server.';
+        if (isset($_GET['http_code'])) {
+          $http_code = filter_var($_GET['http_code'], FILTER_SANITIZE_NUMBER_INT);
+          if ($http_code != '200') {
+            $msg = 'Purge All request was sent to the proxy server.';
+          }
+        }
+      } elseif ($_GET['flash'] == '2') {
+        $msg = 'Settings were saved.';
+      } elseif ($_GET['flash'] == '3') {
+        $msg = 'Not Saved! Invalid Data';
       }
     }
     ?>
     <div id="translation_proxy_admin_panel" class="wrap">
       <h1>Translation Proxy Settings</h1>
-      <?php if (isset($_GET['flash']) && $_GET['flash'] == '1') { ?>
+      <?php if ($msg) { ?>
         <div id='flash_message' class="updated fade">
           <p><strong><?php echo $msg; ?></strong></p>
         </div>
@@ -240,7 +249,7 @@ class TranslationProxy
       <form method="post" action="admin-post.php">
 
        <input type="hidden" name="action" value="translation_proxy_purge_all" />
-       <?php wp_nonce_field( 'translation_proxy' ); ?>
+       <?php wp_nonce_field( 'translation_proxy_purge_all' ); ?>
 
       <h2>Cache</h2>
       <p class="submit">
@@ -250,8 +259,8 @@ class TranslationProxy
 
       <form method="post" action="admin-post.php">
 
-       <input type="hidden" name="action" value="translation_proxy_update_options" />
-       <?php wp_nonce_field( 'translation_proxy' ); ?>
+       <input type="hidden" name="action" value="translation_proxy_update_settings" />
+       <?php wp_nonce_field( 'translation_proxy_update_settings' ); ?>
 
       <h2>Language Select Dropdown</h2>
       <p>
@@ -268,7 +277,7 @@ class TranslationProxy
       </p>
       <p>
         <label for="language_select_allowed_ids">Selected Post IDs</label>
-        <input type="text" id="language_select_allowd_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $ids; ?>">
+        <input type="text" id="language_select_allowed_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $ids; ?>">
       </p>
       <p class="submit">
         <input type="submit" value="Save Configuration" class="button-primary"/>
@@ -283,6 +292,8 @@ class TranslationProxy
     if (!current_user_can('manage_options') || wp_doing_ajax()) {
       wp_die('Not allowed');
     }
+    check_admin_referer('translation_proxy_purge_all');
+
     $r = self::purge_all('HANDLE PURGE ALL');
 
     $url = add_query_arg(
@@ -294,11 +305,53 @@ class TranslationProxy
     exit;
   }
 
+  public static function handle_update_settings() {
+    if (!current_user_can('manage_options') || wp_doing_ajax()) {
+      wp_die('Not allowed');
+    }
+    check_admin_referer('translation_proxy_update_settings');
+
+    $flash = '2';
+    $opts = self::validate_post($_POST);
+
+    if ($opts) {
+      self::save_plugin_options($opts);
+    } else {
+      $flash = '3';
+    }
+
+    $url = add_query_arg(
+      array( 'page' => 'translation-proxy-settings', 'flash' => $flash),
+      admin_url('options-general.php'));
+    self::dbg("REDIRECTING TO $url");
+
+    wp_redirect($url);
+    exit;
+  }
+
+  public static function validate_post($post) {
+    if (!isset($post['translation_proxy_settings'])) {
+      return false;
+    }
+    $r = $post['translation_proxy_settings'];
+    if (isset($r['language_select_enabled']) && $r['language_select_enabled'] != '1') return false;
+    if ($r['language_select_for_entire_site'] !== '0' && $r['language_select_for_entire_site'] !== '1') return false;
+    if ($r['language_select_allowed_ids'] === '') return $r;
+    preg_match('/^ *\d+(, *\d+)* *$/', $r['language_select_allowed_ids'], $matches);
+    if (!$matches) return false;
+    return $r;
+  }
+
+  public static function set_setting_controller() {
+    add_action('admin_post_translation_proxy_update_settings', 'TranslationProxy::handle_update_settings');
+  }
+
   public static function set_purge_request_controller() {
     add_action('admin_post_translation_proxy_purge_all', 'TranslationProxy::handle_purge_all');
   }
 
   public static function initialize() {
+    self::set_setting_controller();
     self::set_purge_request_controller();
     self::set_purge_hooks();
   }
