@@ -206,7 +206,7 @@ class TranslationProxy
     }
     $ids = '';
     if (isset($opts['language_select_allowed_ids'])) {
-      preg_match('/^\d+(, *\d+)*$/', $opts['language_select_allowed_ids'], $matches);
+      preg_match('/^\d+(,\d+)*$/', $opts['language_select_allowed_ids'], $matches);
       if ($matches) {
         $ids = $opts['language_select_allowed_ids'];
       }
@@ -265,7 +265,7 @@ class TranslationProxy
         <label for="language_select_for_entire_site">Selected Pages</label>
       </p>
       <p>
-        <label for="language_select_allowed_ids">Selected Page IDs (comma separated)</label>
+        <label for="language_select_allowed_ids">Selected Page IDs (comma separated, no spaces)</label>
         <input type="text" id="language_select_allowed_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $ids; ?>">
       </p>
       <p class="submit">
@@ -343,7 +343,7 @@ class TranslationProxy
     $r = $post['translation_proxy_settings'];
     if (isset($r['language_select_enabled']) && $r['language_select_enabled'] !== '1') return false;
     if ($r['language_select_for_entire_site'] !== '1' && $r['language_select_for_entire_site'] !== '2') return false;
-    preg_match('/^ *\d*(, *\d+)* *$/', $r['language_select_allowed_ids'], $matches);
+    preg_match('/^\d*(,\d+)*$/', $r['language_select_allowed_ids'], $matches);
     if (!$matches) return false;
     return $r;
   }
