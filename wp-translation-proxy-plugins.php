@@ -179,12 +179,11 @@ class TranslationProxy
   }
 
   public static function on_wp_head() {
-    error_log("WP_HEAD");
     ob_start('TranslationProxy::inject_lang_selector');
   }
 
   public static function set_inject_hooks() {
-    error_log('SET INJECT HOOKS');
+    self::dbg('SET INJECT HOOKS');
     add_action('wp_head', 'TranslationProxy::on_wp_head', 10);
     add_filter('the_title', 'TranslationProxy::on_the_title', 10, 1);
   }
@@ -632,15 +631,13 @@ class TranslationProxy
       </div>
     </div>
     <div id="translation-disclaimer">
-      <div class="primary-content">
-        <div class="pagetitle">
-          <h2>Website Translation Disclaimer</h2>
-        </div>
-        <hr/>
-        <p>THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</p>
-        <p>The website has been translated for your convenience using translation software powered by Google Translate. Reasonable efforts have been made to provide an accurate translation, however, no automated translation is perfect nor is it intended to replace human translators. Translations are provided as a service to users of the website, and are provided “as is.” No warranty of any kind, either expressed or implied, is made as to the accuracy, reliability, or correctness of any translations made from English into any other language. Some content (such as images, videos, Flash, etc.) may not be accurately translated due to the limitations of the translation software.</p>
-        <p>The official text is the English version of the website. Any discrepancies or differences created in the translation are not binding and have no legal effect for compliance or enforcement purposes. If any questions arise related to the accuracy of the information contained in the translated website, please refer to the English version of the website which is the official version.</p>
+      <div class="pagetitle">
+        <h2>Website Translation Disclaimer</h2>
       </div>
+      <hr/>
+      <p>THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</p>
+      <p>The website has been translated for your convenience using translation software powered by Google Translate. Reasonable efforts have been made to provide an accurate translation, however, no automated translation is perfect nor is it intended to replace human translators. Translations are provided as a service to users of the website, and are provided “as is.” No warranty of any kind, either expressed or implied, is made as to the accuracy, reliability, or correctness of any translations made from English into any other language. Some content (such as images, videos, Flash, etc.) may not be accurately translated due to the limitations of the translation software.</p>
+      <p>The official text is the English version of the website. Any discrepancies or differences created in the translation are not binding and have no legal effect for compliance or enforcement purposes. If any questions arise related to the accuracy of the information contained in the translated website, please refer to the English version of the website which is the official version.</p>
     </div>
 EOT;
 
