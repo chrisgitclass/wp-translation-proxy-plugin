@@ -189,52 +189,69 @@ class TranslationProxy
     add_filter('the_title', 'TranslationProxy::on_the_title', 10, 1);
   }
 
+  private static function generate_notices($params) {
+    $msg = '';
+    $class = 'is-dismissible notice';
+    if (isset($params['errors'])) {
+      $class .= ' notice-error';
+      foreach($params['errors'] as $e) {
+        $msg .= self::notice($e, $class);
+      }
+    }
+    if (isset($params['success'])) {
+      $class .= ' notice-success';
+      if ($params['success'] === 'purge-all') {
+        $msg .= 'Purge All request was sent to the proxy server.';
+      }
+      if ($params['success'] === 'save-settings') {
+        $msg .= 'Settings were successfully updated.';
+      }
+    }
+    if (empty($msg)) return '';
+    return self::notice($msg, $class);
+  }
+
+  private static function notice($msg, $class) {
+    ?>
+    <div class="<?php echo $class; ?>">
+      <p><strong><?php echo $msg; ?></strong></p>
+    </div>
+    <?php
+  }
+
   public static function setup_admin() {
     add_menu_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
     add_options_page('Translation Proxy Settings', 'Translation Proxy', 'manage_options', 'translation-proxy-settings', 'TranslationProxy::admin_page');
   }
 
-  public static function admin_page() {
+  private static function get_admin_page_options() {
     $opts = self::get_plugin_options();
-    $checked = '';
+    $r = array(
+      'checked' => '',
+      'entire_site' => '1',
+      'ids' => ''
+    );
     if (isset($opts['language_select_enabled']) && $opts['language_select_enabled'] === '1') {
-      $checked = 'checked';
+      $r['checked'] = 'checked';
     }
-    $entire_site = '1';
     if (isset($opts['language_select_for_entire_site']) && $opts['language_select_for_entire_site'] === '2') {
-      $entire_site = '2';
+      $r['entire_site'] = '2';
     }
-    $ids = '';
     if (isset($opts['language_select_allowed_ids'])) {
       preg_match('/^\d+(,\d+)*$/', $opts['language_select_allowed_ids'], $matches);
       if ($matches) {
-        $ids = $opts['language_select_allowed_ids'];
+        $r['ids'] = $opts['language_select_allowed_ids'];
       }
     }
-    $msg = null;
-    if (isset($_GET['flash'])) {
-      if ($_GET['flash'] == '1') {
-        $msg = 'Purge All request was sent to the proxy server.';
-        if (isset($_GET['http_code'])) {
-          $http_code = filter_var($_GET['http_code'], FILTER_SANITIZE_NUMBER_INT);
-          if ($http_code != '200') {
-            $msg = 'Purge All request was sent to the proxy server.';
-          }
-        }
-      } elseif ($_GET['flash'] == '2') {
-        $msg = 'Settings were saved.';
-      } elseif ($_GET['flash'] == '3') {
-        $msg = 'Not Saved! Invalid Data';
-      }
-    }
+    return $r;
+  }
+
+  public static function admin_page() {
+    $r = self::get_admin_page_options();
     ?>
     <div id="translation_proxy_admin_panel" class="wrap">
       <h1>Translation Proxy Settings</h1>
-      <?php if ($msg) { ?>
-        <div id='flash_message' class="updated fade">
-          <p><strong><?php echo $msg; ?></strong></p>
-        </div>
-      <?php } ?>
+      <?php echo self::generate_notices($_GET); ?>
       <form method="post" action="admin-post.php">
 
        <input type="hidden" name="action" value="translation_proxy_purge_all" />
@@ -254,19 +271,19 @@ class TranslationProxy
       <h2>Language Select Dropdown</h2>
       <p>
         <label for="language_select_enabled">Enabled</label>
-        <input type="checkbox" id="language_select_enabled" name="translation_proxy_settings[language_select_enabled]" value="1" <?php echo $checked; ?>>
+        <input type="checkbox" id="language_select_enabled" name="translation_proxy_settings[language_select_enabled]" value="1" <?php echo $r['checked']; ?>>
       </p>
       <p>
-        <input type="radio" id="language_select_for_entire_site1" name="translation_proxy_settings[language_select_for_entire_site]" value="1" <?php echo ($entire_site === '1') ? 'checked' : ''; ?>>
+        <input type="radio" id="language_select_for_entire_site1" name="translation_proxy_settings[language_select_for_entire_site]" value="1" <?php echo ($r['entire_site'] === '1') ? 'checked' : ''; ?>>
         <label for="language_select_for_entire_site">Entire Site</label>
       </p>
       <p>
-        <input type="radio" id="language_select_for_entire_site2" name="translation_proxy_settings[language_select_for_entire_site]" value="2" <?php echo ($entire_site === '2') ? 'checked' : ''; ?>>
+        <input type="radio" id="language_select_for_entire_site2" name="translation_proxy_settings[language_select_for_entire_site]" value="2" <?php echo ($r['entire_site'] === '2') ? 'checked' : ''; ?>>
         <label for="language_select_for_entire_site">Selected Pages</label>
       </p>
       <p>
         <label for="language_select_allowed_ids">Selected Page IDs (comma separated, no spaces)</label>
-        <input type="text" id="language_select_allowed_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $ids; ?>">
+        <input type="text" id="language_select_allowed_ids" name="translation_proxy_settings[language_select_allowed_ids]" value="<?php echo $r['ids']; ?>">
       </p>
       <p class="submit">
         <input type="submit" value="Save Configuration" class="button-primary"/>
@@ -305,7 +322,10 @@ class TranslationProxy
     $r = self::purge_all('HANDLE PURGE ALL');
 
     $url = add_query_arg(
-      array( 'page' => 'translation-proxy-settings', 'flash' => '1', 'http_code' => $r ),
+      array(
+        'page' => 'translation-proxy-settings',
+        'success' => 'purge-all',
+        'http_code' => $r ),
       admin_url('options-general.php'));
     self::dbg("REDIRECTING TO $url");
 
@@ -319,32 +339,64 @@ class TranslationProxy
     }
     check_admin_referer('translation_proxy_update_settings');
 
-    $flash = '2';
+    $url = add_query_arg(array('page' => 'translation-proxy-settings'),
+      admin_url('options-general.php'));
     $opts = self::validate_post($_POST);
 
-    if ($opts) {
+    if (!isset($opts['errors'])) {
       self::dbg($opts);
       self::save_plugin_options($opts);
+      $url .= '&success=save-settings';
     } else {
-      $flash = '3';
+      foreach($opts['errors'] as $e) {
+        $url .= "&errors[]=$e";
+      }
     }
 
-    $url = add_query_arg(
-      array( 'page' => 'translation-proxy-settings', 'flash' => $flash),
-      admin_url('options-general.php'));
     self::dbg("REDIRECTING TO $url");
 
     wp_redirect($url);
     exit;
   }
 
-  public static function validate_post($post) {
+  public static function validate_post_old($post) {
     if (!isset($post['translation_proxy_settings'])) return false;
     $r = $post['translation_proxy_settings'];
     if (isset($r['language_select_enabled']) && $r['language_select_enabled'] !== '1') return false;
     if ($r['language_select_for_entire_site'] !== '1' && $r['language_select_for_entire_site'] !== '2') return false;
     preg_match('/^\d*(,\d+)*$/', $r['language_select_allowed_ids'], $matches);
     if (!$matches) return false;
+    return $r;
+  }
+
+  public static function validate_post($post) {
+    $r = array_merge(array(), $post);
+    $errors = array();
+
+    if (!isset($r['translation_proxy_settings'])) {
+      array_push($errors, 'Invalid%20Post%20Data');
+      $r['errors'] = $errors;
+      return $r;
+    }
+
+    $r = $r['translation_proxy_settings'];
+    if (isset($r['language_select_enabled']) && $r['language_select_enabled'] !== '1') {
+      array_push($errors, 'Enabled%20has%20an%20invalid%20value%2E');
+    }
+    if (isset($r['language_select_for_entire_site'])) {
+      if ($r['language_select_for_entire_site'] !== '1' && $r['language_select_for_entire_site'] !== '2') {
+        array_push($errors, 'Entire%20Site%2FSelected%20Pages%20has%20an%20invalid%20value%2E');
+      }
+    } else {
+      array_push($errors, 'Entire%20Site%2FSelected%20Pages%20must%20be%20provided%2E');
+    }
+    preg_match('/^\d*(,\d+)*$/', $r['language_select_allowed_ids'], $matches);
+    if (!$matches) {
+      array_push($errors, 'Selected%20Page%20IDs%20must%20be%20comma%20separated%20numbers%2E');
+    }
+    if (!empty($errors)) {
+      $r['errors'] = $errors;
+    }
     return $r;
   }
 
