@@ -82,7 +82,7 @@ class TranslationProxy
   public static $debug = true;
   public static $enabled = false;
 
-  private static function on_edit_post($post_id, $post) {
+  public static function on_edit_post($post_id, $post) {
     $status = $post->post_status;
     if ($status == 'publish' || $status == 'private') {
       $url = get_permalink($post_id);
@@ -90,7 +90,7 @@ class TranslationProxy
     }
   }
 
-  private static function on_transition_post_status($new_status, $old_status, $post) {
+  public static function on_transition_post_status($new_status, $old_status, $post) {
     self::dbg("TRANSITION_POST_STATUS $old_status => $new_status");
     if ($old_status == 'publish') {
       if ($new_status != 'publish') {
@@ -100,20 +100,20 @@ class TranslationProxy
     }
   }
 
-  private static function on_edit_attachment($post_id) {
+  public static function on_edit_attachment($post_id) {
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "EDIT_ATTACHMENT: $post_id $perma");
   }
 
-  private static function on_delete_attachment($post_id) {
+  public static function on_delete_attachment($post_id) {
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "DELETE_ATTACHMENT: $url");
     self::purge_url($perma, "DELETE_ATTACHMENT: $perma");
   }
 
-  private static function on_update_attached_file($file, $post_id) {
+  public static function on_update_attached_file($file, $post_id) {
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "UPDATE_ATTCHED_FILE: $url");
@@ -121,11 +121,11 @@ class TranslationProxy
     return $file;
   }
 
-  private static function on_switch_theme() {
+  public static function on_switch_theme() {
     self::purge_all("SWITCH_THEME");
   }
 
-  private static function on_wp_update_nav_menu($menu_id, $menu_data = null) {
+  public static function on_wp_update_nav_menu($menu_id, $menu_data = null) {
     if (is_null($menu_data)) {
       self::purge_all("WP_UPDATE_NAV_MENU");
     }
@@ -148,7 +148,7 @@ class TranslationProxy
     wp_enqueue_script('translation-proxy', plugin_dir_url(__FILE__) . 'js/translation-proxy.js');
   }
 
-  private static function inject_lang_selector($buffer) {
+  public static function inject_lang_selector($buffer) {
     $opts = self::get_plugin_options();
     $page_id = strval(get_queried_object_id());
     if ($opts['language_select_enabled'] !== '1') return $buffer;
@@ -163,12 +163,12 @@ class TranslationProxy
     return $text;
   }
 
-  private static function on_the_title($title) {
+  public static function on_the_title($title) {
     ob_end_flush();
     return $title;
   }
 
-  private static function on_wp_head() {
+  public static function on_wp_head() {
     ob_start('TranslationProxy::inject_lang_selector');
   }
 
@@ -178,7 +178,7 @@ class TranslationProxy
     add_filter('the_title', 'TranslationProxy::on_the_title', 10, 1);
   }
 
-  private static function generate_notices($params) {
+  public static function generate_notices($params) {
     $msg = '';
     $class = 'is-dismissible notice';
     if (isset($params['errors'])) {
@@ -200,7 +200,7 @@ class TranslationProxy
     return self::notice($msg, $class);
   }
 
-  private static function notice($msg, $class) {
+  public static function notice($msg, $class) {
     ?>
     <div class="<?php echo $class; ?>">
       <p><strong><?php echo $msg; ?></strong></p>
@@ -235,7 +235,7 @@ class TranslationProxy
     return $r;
   }
 
-  private static function admin_page() {
+  public static function admin_page() {
     $r = self::get_admin_page_options();
     ?>
     <div id="translation_proxy_admin_panel" class="wrap">
@@ -301,7 +301,7 @@ class TranslationProxy
     <?php
   }
 
-  private static function handle_purge_all() {
+  public static function handle_purge_all() {
     //if (!current_user_can('manage_options')) {
     if (!current_user_can('manage_options') || wp_doing_ajax()) {
       wp_die('Not allowed');
@@ -322,7 +322,7 @@ class TranslationProxy
     exit;
   }
 
-  private static function handle_update_settings() {
+  public static function handle_update_settings() {
     if (!current_user_can('manage_options') || wp_doing_ajax()) {
       wp_die('Not allowed');
     }
@@ -348,7 +348,7 @@ class TranslationProxy
     exit;
   }
 
-  public static function validate_post($post) {
+  private static function validate_post($post) {
     $r = array_merge(array(), $post);
     $errors = array();
 
@@ -401,7 +401,7 @@ class TranslationProxy
     );
   }
 
-  private static function create_plugin_options() {
+  public static function create_plugin_options() {
     $opts = self::get_plugin_options();
     if ($opts) {
       return;
@@ -414,11 +414,11 @@ class TranslationProxy
     return get_option('translation_proxy_options');
   }
 
-  private static function save_plugin_options($opts) {
+  public static function save_plugin_options($opts) {
     update_option('translation_proxy_options', $opts);
   }
 
-  private static function delete_plugin_options() {
+  public static function delete_plugin_options() {
     delete_option('translation_proxy_options');
   }
 
@@ -502,7 +502,7 @@ class TranslationProxy
       ) );
    *
    */
-  public static function purge_url($url, $msg = null) {
+  private static function purge_url($url, $msg = null) {
     $r = null;
     if (self::$enabled) {
       //$curl = curl_init($url);
