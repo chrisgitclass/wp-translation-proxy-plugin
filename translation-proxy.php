@@ -411,7 +411,7 @@ class TranslationProxy
     );
   }
 
-  public static function create_plugin_options() {
+  private static function create_plugin_options() {
     $opts = self::get_plugin_options();
     if ($opts) {
       return;
@@ -424,11 +424,11 @@ class TranslationProxy
     return get_option('translation_proxy_options');
   }
 
-  public static function save_plugin_options($opts) {
+  private static function save_plugin_options($opts) {
     update_option('translation_proxy_options', $opts);
   }
 
-  public static function delete_plugin_options() {
+  private static function delete_plugin_options() {
     delete_option('translation_proxy_options');
   }
 
@@ -461,16 +461,16 @@ class TranslationProxy
     global $wpdb;
 
     if (is_multisite()) {
-        self::dbg('TranslationProxy Network Activated');
-        $original_id = get_current_blog_id();
-        $blogs = $wpdb->get_results("SELECT blog_id, path FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}'");
-        foreach($blogs as $b) {
-          switch_to_blog($b->blog_id);
-          self::dbg("Blog ID: " . $b->blog_id .", PATH: " . $b->path);
-          $opts = self::get_plugin_options();
-          self::dbg($opts);
-        }
-        switch_to_blog($original_id);
+      self::dbg('TranslationProxy Network Activated');
+      $original_id = get_current_blog_id();
+      $blogs = $wpdb->get_results("SELECT blog_id, path FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}'");
+      foreach($blogs as $b) {
+        switch_to_blog($b->blog_id);
+        self::dbg("Blog ID: " . $b->blog_id .", PATH: " . $b->path);
+        $opts = self::get_plugin_options();
+        self::dbg($opts);
+      }
+      switch_to_blog($original_id);
     } else {
       $site = $wpdb->get_results("SELECT domain FROM {$wpdb->site}");
       self::dbg('SITE: ' . $site->domain);
@@ -478,6 +478,24 @@ class TranslationProxy
       self::dbg($opts);
     }
     self::dbg('TranslationProxy Got Deactivated!');
+  }
+
+  public static function uninstall() {
+    global $wpdb;
+
+    if (is_multisite()) {
+      $original_id = get_current_blog_id();
+      $blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}'");
+      foreach($blogs as $b) {
+        switch_to_blog($b->blog_id);
+        //self::delete_plugin_options();
+      }
+      switch_to_blog($original_id);
+      self::dbg('TranslationProxy Got Uninstalled!');
+    } else {
+      //self::delete_plugin_options();
+    }
+    self::dbg('TranslationProxy Got Uninstalled!');
   }
 
   private static function purge_all($msg = null) {
