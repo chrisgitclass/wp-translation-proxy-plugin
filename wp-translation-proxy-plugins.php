@@ -2,13 +2,12 @@
 /**
  * Plugin Name: Translation Proxy
  * Description: Purges proxy cache when the Wordpress site is updated.
- * Version: 0.0.1
+ * Version: 1.0.0
  * Author: Yoshiaki Iinuma
  * License: GPL2
  */
 
 //defined('ABSPATH') or die('Not allow to directly access this file')
-
 
 class TranslationProxy
 {
@@ -450,7 +449,8 @@ class TranslationProxy
         self::dbg('TranslationProxy Network Activated');
         $original_id = get_current_blog_id();
         self::dbg("Original Blog: $original_id");
-        $blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}' AND spam = '0' AND deleted = '0' AND archived = '0'");
+        //$blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}' AND spam = '0' AND deleted = '0' AND archived = '0'");
+        $blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}'");
         foreach($blogs as $b) {
           self::dbg("Switch to Blog: " . $b->blog_id);
           switch_to_blog($b->blog_id);
@@ -467,6 +467,25 @@ class TranslationProxy
   }
 
   public static function deactivate() {
+    global $wpdb;
+
+    if (is_multisite()) {
+        self::dbg('TranslationProxy Network Activated');
+        $original_id = get_current_blog_id();
+        $blogs = $wpdb->get_results("SELECT blog_id, path FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}'");
+        foreach($blogs as $b) {
+          switch_to_blog($b->blog_id);
+          self::dbg("Blog ID: " . $b->blog_id .", PATH: " . $b->path);
+          $opts = self::get_plugin_options();
+          self::dbg($opts);
+        }
+        switch_to_blog($original_id);
+    } else {
+      $site = $wpdb->get_results("SELECT domain FROM {$wpdb->site}");
+      self::dbg('SITE: ' . $site->domain);
+      $opts = self::get_plugin_options();
+      self::dbg($opts);
+    }
     self::dbg('TranslationProxy Got Deactivated!');
   }
 
