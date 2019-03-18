@@ -82,7 +82,7 @@ class TranslationProxy
   public static $debug = true;
   public static $enabled = false;
 
-  public static function on_edit_post($post_id, $post) {
+  private static function on_edit_post($post_id, $post) {
     $status = $post->post_status;
     if ($status == 'publish' || $status == 'private') {
       $url = get_permalink($post_id);
@@ -90,7 +90,7 @@ class TranslationProxy
     }
   }
 
-  public static function on_transition_post_status($new_status, $old_status, $post) {
+  private static function on_transition_post_status($new_status, $old_status, $post) {
     self::dbg("TRANSITION_POST_STATUS $old_status => $new_status");
     if ($old_status == 'publish') {
       if ($new_status != 'publish') {
@@ -100,20 +100,20 @@ class TranslationProxy
     }
   }
 
-  public static function on_edit_attachment($post_id) {
+  private static function on_edit_attachment($post_id) {
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "EDIT_ATTACHMENT: $post_id $perma");
   }
 
-  public static function on_delete_attachment($post_id) {
+  private static function on_delete_attachment($post_id) {
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "DELETE_ATTACHMENT: $url");
     self::purge_url($perma, "DELETE_ATTACHMENT: $perma");
   }
 
-  public static function on_update_attached_file($file, $post_id) {
+  private static function on_update_attached_file($file, $post_id) {
     $url = wp_get_attachment_url($post_id);
     $perma = get_permalink($post_id);
     self::purge_url($url, "UPDATE_ATTCHED_FILE: $url");
@@ -121,17 +121,17 @@ class TranslationProxy
     return $file;
   }
 
-  public static function on_switch_theme() {
+  private static function on_switch_theme() {
     self::purge_all("SWITCH_THEME");
   }
 
-  public static function on_wp_update_nav_menu($menu_id, $menu_data = null) {
+  private static function on_wp_update_nav_menu($menu_id, $menu_data = null) {
     if (is_null($menu_data)) {
       self::purge_all("WP_UPDATE_NAV_MENU");
     }
   }
 
-  public static function set_purge_hooks() {
+  private static function set_purge_hooks() {
     self::dbg('SET-HOOKS');
     add_action('edit_post', 'TranslationProxy::on_edit_post', 10, 2);
     add_action('transition_post_status', 'TranslationProxy::on_transition_post_status', 10, 3);
@@ -148,7 +148,7 @@ class TranslationProxy
     wp_enqueue_script('translation-proxy', plugin_dir_url(__FILE__) . 'js/translation-proxy.js');
   }
 
-  public static function inject_lang_selector($buffer) {
+  private static function inject_lang_selector($buffer) {
     $opts = self::get_plugin_options();
     $page_id = strval(get_queried_object_id());
     if ($opts['language_select_enabled'] !== '1') return $buffer;
@@ -163,12 +163,12 @@ class TranslationProxy
     return $text;
   }
 
-  public static function on_the_title($title) {
+  private static function on_the_title($title) {
     ob_end_flush();
     return $title;
   }
 
-  public static function on_wp_head() {
+  private static function on_wp_head() {
     ob_start('TranslationProxy::inject_lang_selector');
   }
 
@@ -235,7 +235,7 @@ class TranslationProxy
     return $r;
   }
 
-  public static function admin_page() {
+  private static function admin_page() {
     $r = self::get_admin_page_options();
     ?>
     <div id="translation_proxy_admin_panel" class="wrap">
@@ -301,7 +301,7 @@ class TranslationProxy
     <?php
   }
 
-  public static function handle_purge_all() {
+  private static function handle_purge_all() {
     //if (!current_user_can('manage_options')) {
     if (!current_user_can('manage_options') || wp_doing_ajax()) {
       wp_die('Not allowed');
@@ -322,7 +322,7 @@ class TranslationProxy
     exit;
   }
 
-  public static function handle_update_settings() {
+  private static function handle_update_settings() {
     if (!current_user_can('manage_options') || wp_doing_ajax()) {
       wp_die('Not allowed');
     }
@@ -346,16 +346,6 @@ class TranslationProxy
 
     wp_redirect($url);
     exit;
-  }
-
-  public static function validate_post_old($post) {
-    if (!isset($post['translation_proxy_settings'])) return false;
-    $r = $post['translation_proxy_settings'];
-    if (isset($r['language_select_enabled']) && $r['language_select_enabled'] !== '1') return false;
-    if ($r['language_select_for_entire_site'] !== '1' && $r['language_select_for_entire_site'] !== '2') return false;
-    preg_match('/^\d*(,\d+)*$/', $r['language_select_allowed_ids'], $matches);
-    if (!$matches) return false;
-    return $r;
   }
 
   public static function validate_post($post) {
@@ -389,11 +379,11 @@ class TranslationProxy
     return $r;
   }
 
-  public static function set_setting_controller() {
+  private static function set_setting_controller() {
     add_action('admin_post_translation_proxy_update_settings', 'TranslationProxy::handle_update_settings');
   }
 
-  public static function set_purge_request_controller() {
+  private static function set_purge_request_controller() {
     add_action('admin_post_translation_proxy_purge_all', 'TranslationProxy::handle_purge_all');
   }
 
