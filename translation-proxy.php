@@ -478,12 +478,12 @@ class TranslationProxy
       $blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}'");
       foreach($blogs as $b) {
         switch_to_blog($b->blog_id);
-        //self::delete_plugin_options();
+        self::delete_plugin_options();
       }
       switch_to_blog($original_id);
       self::dbg('TranslationProxy Got Uninstalled!');
     } else {
-      //self::delete_plugin_options();
+      self::delete_plugin_options();
     }
     self::dbg('TranslationProxy Got Uninstalled!');
   }
