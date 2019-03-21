@@ -80,7 +80,7 @@ class TranslationProxy
    */
 
   public static $debug = true;
-  public static $enabled = false;
+  public static $enabled = true;
 
   public static function on_edit_post($post_id, $post) {
     $status = $post->post_status;
@@ -505,12 +505,12 @@ class TranslationProxy
   private static function purge_url($url, $msg = null) {
     $r = null;
     if (self::$enabled) {
-      //$curl = curl_init($url);
-      //curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PURGE");
-      //curl_exec($curl);
-      //$r = curl_get_info($curl, CURLINFO_HTTP_CODE);
-      //curl_close($curl);
-      //self::dbg("RESULT: $r");
+      $curl = curl_init($url);
+      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PURGE");
+      curl_exec($curl);
+      $r = curl_get_info($curl, CURLINFO_HTTP_CODE);
+      curl_close($curl);
+      self::dbg("RESULT: $r");
     }
     if (!is_null($msg)) self::dbg($msg);
     self::dbg("PURGE: $url");
