@@ -79,8 +79,8 @@ class TranslationProxy
    *      wp_update_nav_menu  : only menu_id OOO
    */
 
-  public static $debug = true;
-  public static $enabled = true;
+  public static $debug = true;     /* Enable debug message */
+  public static $enabled = true;   /* Enable cache purge request */
 
   public static function on_edit_post($post_id, $post) {
     $status = $post->post_status;
@@ -507,10 +507,11 @@ class TranslationProxy
     if (self::$enabled) {
       $curl = curl_init($url);
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PURGE");
-      curl_exec($curl);
-      $r = curl_get_info($curl, CURLINFO_HTTP_CODE);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      $msg = curl_exec($curl);
+      $r = curl_getinfo($curl, CURLINFO_HTTP_CODE);
       curl_close($curl);
-      self::dbg("RESULT: $r");
+      self::dbg("RESPONSE: $r $msg");
     }
     if (!is_null($msg)) self::dbg($msg);
     self::dbg("PURGE: $url");
