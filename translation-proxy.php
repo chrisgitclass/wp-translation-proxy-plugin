@@ -490,31 +490,41 @@ class TranslationProxy
 
   private static function purge_all($msg = null) {
     $url = home_url() . '/purge-proxy-cache?page=all';
-    return self::purge_url($url, $msg);
+    if (!is_null($msg)) self::dbg($msg);
+    self::dbg("PURGEALL: $url");
+
+    $headers = array(
+      'X-Purge-Method' => 'flushall',
+    );
+    return self::send_purge_request($url, $headers);
   }
 
-  /**
-   * NOTE: could use wp_remote_request
-   *
-      $response = wp_remote_request( $purgeme, array(
-        'method'  => 'PURGE',
-        'headers' => $headers,
-      ) );
-   *
-   */
   private static function purge_url($url, $msg = null) {
-    $r = null;
-    if (self::$enabled) {
-      $curl = curl_init($url);
-      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PURGE");
-      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-      $msg = curl_exec($curl);
-      $r = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-      curl_close($curl);
-      self::dbg("RESPONSE: $r $msg");
-    }
     if (!is_null($msg)) self::dbg($msg);
     self::dbg("PURGE: $url");
+
+    $headers = array(
+      'X-Purge-Method' => 'default',
+      'X-Purge-Target' => $url
+    );
+    return self::send_purge_request($url, $headers);
+  }
+
+  private static function send_purge_request($url, $headers) {
+    if (!self::$enabled) return null;
+
+    $r = wp_remote_request($url, array(
+        'method' => 'PURGE',
+        'headers' => $headers,
+        'sslverify' => false
+      ));
+    if (is_wp_error($r)) {
+      $err = $r->get_error_message();
+      self::dbg('ERROR');
+      self::dbg($err);
+    } else {
+      self::dbg('RESPONSE: ' . $r['response']['code'] . $r['response']['message']);
+    }
     return $r;
   }
 
