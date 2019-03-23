@@ -79,7 +79,7 @@ class TranslationProxy
    *      wp_update_nav_menu  : only menu_id OOO
    */
 
-  public static $debug = true;     /* Enable debug message */
+  public static $debug = false;     /* Enable debug message */
   public static $enabled = true;   /* Enable cache purge request */
 
   public static function on_edit_post($post_id, $post) {
