@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Translation Proxy
  * Description: Purges proxy cache when the Wordpress site is updated.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Yoshiaki Iinuma
  * License: GPL2
  */

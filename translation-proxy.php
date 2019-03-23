@@ -546,8 +546,8 @@ class TranslationProxy
 	const LOCATION =	'<div class="notmobile statewide-banner-right">';
 
   const LANG_SELECT =<<<EOT
-    <div class="notmobile statewide-banner-left">
-      <div id="google_cloud_translation_selector">
+    <div id="translation-selector-wrapper" class="notmobile statewide-banner-left">
+      <div id="translation-selector">
 
 				<select id="lang_choices" onchange="changeLanguage(this)">
 				  <option value="" selected>Select Language</option>
@@ -656,7 +656,7 @@ class TranslationProxy
 				  <option id="langopt-yo" value="yo">Yoruba</option>
 				  <option id="langopt-zu" value="zu">Zulu</option>
 				</select>
-        <span id="translation-disclaimer-link">Translation Disclaimer</span>
+        <span id="translation-disclaimer-link">Disclaimer</span>
       </div>
     </div>
     <div id="translation-disclaimer">

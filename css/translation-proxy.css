@@ -1,4 +1,8 @@
 
+#translation-selector-wrapper {
+  margin-top: .5em;
+}
+
 #translation-disclaimer {
   display: none;
   position: fixed;
