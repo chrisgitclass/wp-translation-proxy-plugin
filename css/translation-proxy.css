@@ -29,3 +29,7 @@
 #translation-disclaimer-link {
   font-size: .9em;
 }
+
+select#lang_choices {
+  width: 10em;
+}

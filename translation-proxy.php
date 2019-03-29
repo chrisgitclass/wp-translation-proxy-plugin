@@ -551,111 +551,112 @@ class TranslationProxy
 
 				<select id="lang_choices" onchange="changeLanguage(this)">
 				  <option value="" selected>Select Language</option>
-				  <option id="langopt-af" value="af">Afrikaans</option>
-				  <option id="langopt-sq" value="sq">Albanian</option>
-				  <option id="langopt-am" value="am">Amharic</option>
-				  <option id="langopt-ar" value="ar">Arabic</option>
-				  <option id="langopt-hy" value="hy">Armenian</option>
-				  <option id="langopt-az" value="az">Azerbaijani</option>
-				  <option id="langopt-eu" value="eu">Basque</option>
-				  <option id="langopt-be" value="be">Belarusian</option>
-				  <option id="langopt-bn" value="bn">Bengali</option>
-				  <option id="langopt-bs" value="bs">Bosnian</option>
-				  <option id="langopt-bg" value="bg">Bulgarian</option>
-				  <option id="langopt-ca" value="ca">Catalan</option>
-				  <option id="langopt-ceb" value="ceb">Cebuano</option>
-				  <option id="langopt-zh-CN" value="zh-CN">Chinese (Simplified)</option>
-				  <option id="langopt-zh-TW" value="zh-TW">Chinese (Traditional)</option>
-				  <option id="langopt-co" value="co">Corsican</option>
-				  <option id="langopt-hr" value="hr">Croatian</option>
-				  <option id="langopt-cs" value="cs">Czech</option>
-				  <option id="langopt-da" value="da">Danish</option>
-				  <option id="langopt-nl" value="nl">Dutch</option>
-				  <option id="langopt-en" value="en">English</option>
-				  <option id="langopt-eo" value="eo">Esperanto</option>
-				  <option id="langopt-et" value="et">Estonian</option>
-				  <option id="langopt-fi" value="fi">Finnish</option>
-				  <option id="langopt-fr" value="fr">French</option>
-				  <option id="langopt-fy" value="fy">Frisian</option>
-				  <option id="langopt-gl" value="gl">Galician</option>
-				  <option id="langopt-ka" value="ka">Georgian</option>
-				  <option id="langopt-de" value="de">German</option>
-				  <option id="langopt-el" value="el">Greek</option>
-				  <option id="langopt-gu" value="gu">Gujarati</option>
-				  <option id="langopt-ht" value="ht">Haitian Creole</option>
-				  <option id="langopt-ha" value="ha">Hausa</option>
-				  <option id="langopt-haw" value="haw">Hawaiian</option>
-				  <option id="langopt-he" value="he">Hebrew</option>
-				  <option id="langopt-hi" value="hi">Hindi</option>
-				  <option id="langopt-hmn" value="hmn">Hmong</option>
-				  <option id="langopt-hu" value="hu">Hungarian</option>
-				  <option id="langopt-is" value="is">Icelandic</option>
-				  <option id="langopt-ig" value="ig">Igbo</option>
-				  <option id="langopt-id" value="id">Indonesian</option>
-				  <option id="langopt-ga" value="ga">Irish</option>
-				  <option id="langopt-it" value="it">Italian</option>
-				  <option id="langopt-ja" value="ja">Japanese</option>
-				  <option id="langopt-jw" value="jw">Javanese</option>
-				  <option id="langopt-kn" value="kn">Kannada</option>
-				  <option id="langopt-kk" value="kk">Kazakh</option>
-				  <option id="langopt-km" value="km">Khmer</option>
-				  <option id="langopt-ko" value="ko">Korean</option>
-				  <option id="langopt-ku" value="ku">Kurdish</option>
-				  <option id="langopt-ky" value="ky">Kyrgyz</option>
-				  <option id="langopt-lo" value="lo">Lao</option>
-				  <option id="langopt-la" value="la">Latin</option>
-				  <option id="langopt-lv" value="lv">Latvian</option>
-				  <option id="langopt-lt" value="lt">Lithuanian</option>
-				  <option id="langopt-lb" value="lb">Luxembourgish</option>
-				  <option id="langopt-mk" value="mk">Macedonian</option>
-				  <option id="langopt-mg" value="mg">Malagasy</option>
-				  <option id="langopt-ms" value="ms">Malay</option>
-				  <option id="langopt-ml" value="ml">Malayalam</option>
-				  <option id="langopt-mt" value="mt">Maltese</option>
-				  <option id="langopt-mi" value="mi">Maori</option>
-				  <option id="langopt-mr" value="mr">Marathi</option>
-				  <option id="langopt-mn" value="mn">Mongolian</option>
-				  <option id="langopt-my" value="my">Myanmar (Burmese)</option>
-				  <option id="langopt-ne" value="ne">Nepali</option>
-				  <option id="langopt-no" value="no">Norwegian</option>
-				  <option id="langopt-ny" value="ny">Nyanja (Chichewa)</option>
-				  <option id="langopt-ps" value="ps">Pashto</option>
-				  <option id="langopt-fa" value="fa">Persian</option>
-				  <option id="langopt-pl" value="pl">Polish</option>
-				  <option id="langopt-pt" value="pt">Portuguese (Portugal, Brazil)</option>
-				  <option id="langopt-pa" value="pa">Punjabi</option>
-				  <option id="langopt-ro" value="ro">Romanian</option>
-				  <option id="langopt-ru" value="ru">Russian</option>
-				  <option id="langopt-sm" value="sm">Samoan</option>
-				  <option id="langopt-gd" value="gd">Scots Gaelic</option>
-				  <option id="langopt-sr" value="sr">Serbian</option>
-				  <option id="langopt-st" value="st">Sesotho</option>
-				  <option id="langopt-sn" value="sn">Shona</option>
-				  <option id="langopt-sd" value="sd">Sindhi</option>
-				  <option id="langopt-si" value="si">Sinhala (Sinhalese)</option>
-				  <option id="langopt-sk" value="sk">Slovak</option>
-				  <option id="langopt-sl" value="sl">Slovenian</option>
-				  <option id="langopt-so" value="so">Somali</option>
-				  <option id="langopt-es" value="es">Spanish</option>
-				  <option id="langopt-su" value="su">Sundanese</option>
-				  <option id="langopt-sw" value="sw">Swahili</option>
-				  <option id="langopt-sv" value="sv">Swedish</option>
-				  <option id="langopt-tl" value="tl">Tagalog (Filipino)</option>
-				  <option id="langopt-tg" value="tg">Tajik</option>
-				  <option id="langopt-ta" value="ta">Tamil</option>
-				  <option id="langopt-te" value="te">Telugu</option>
-				  <option id="langopt-th" value="th">Thai</option>
-				  <option id="langopt-tr" value="tr">Turkish</option>
-				  <option id="langopt-uk" value="uk">Ukrainian</option>
-				  <option id="langopt-ur" value="ur">Urdu</option>
-				  <option id="langopt-uz" value="uz">Uzbek</option>
-				  <option id="langopt-vi" value="vi">Vietnamese</option>
-				  <option id="langopt-cy" value="cy">Welsh</option>
-				  <option id="langopt-xh" value="xh">Xhosa</option>
-				  <option id="langopt-yi" value="yi">Yiddish</option>
-				  <option id="langopt-yo" value="yo">Yoruba</option>
-				  <option id="langopt-zu" value="zu">Zulu</option>
-				</select>
+          <option id="langopt-af" value="af">Afrikaans (Afrikaans)</option>
+          <option id="langopt-sq" value="sq">Albanian (shqiptar)</option>
+          <option id="langopt-am" value="am">Amharic (አማርኛ)</option>
+          <option id="langopt-ar" value="ar">Arabic (عربى)</option>
+          <option id="langopt-hy" value="hy">Armenian (հայերեն)</option>
+          <option id="langopt-az" value="az">Azerbaijani (Azərbaycan)</option>
+          <option id="langopt-eu" value="eu">Basque (Euskal)</option>
+          <option id="langopt-be" value="be">Belarusian (беларускі)</option>
+          <option id="langopt-bn" value="bn">Bengali (বাঙালি)</option>
+          <option id="langopt-bs" value="bs">Bosnian (Bosanski)</option>
+          <option id="langopt-bg" value="bg">Bulgarian (български)</option>
+          <option id="langopt-ca" value="ca">Catalan (Català)</option>
+          <option id="langopt-ceb" value="ceb">Cebuano (Cebuano)</option>
+          <option id="langopt-zh-CN" value="zh-CN">Chinese (Simplified) (中文(简体))</option>
+          <option id="langopt-zh-TW" value="zh-TW">Chinese (Traditional) (中文(繁體))</option>
+          <option id="langopt-co" value="co">Corsican (Corsu)</option>
+          <option id="langopt-hr" value="hr">Croatian (Hrvatski)</option>
+          <option id="langopt-cs" value="cs">Czech (čeština)</option>
+          <option id="langopt-da" value="da">Danish (dansk)</option>
+          <option id="langopt-nl" value="nl">Dutch (Nederlands)</option>
+          <option id="langopt-en" value="en">English</option>
+          <option id="langopt-eo" value="eo">Esperanto (Esperanto)</option>
+          <option id="langopt-et" value="et">Estonian (Eesti keel)</option>
+          <option id="langopt-fi" value="fi">Finnish (Suomalainen)</option>
+          <option id="langopt-fr" value="fr">French (français)</option>
+          <option id="langopt-fy" value="fy">Frisian (Frysk)</option>
+          <option id="langopt-gl" value="gl">Galician (Galego)</option>
+          <option id="langopt-ka" value="ka">Georgian (ქართული)</option>
+          <option id="langopt-de" value="de">German (Deutsche)</option>
+          <option id="langopt-el" value="el">Greek (Ελληνικά)</option>
+          <option id="langopt-gu" value="gu">Gujarati (ગુજરાતી)</option>
+          <option id="langopt-ht" value="ht">Haitian Creole (Kreyòl Ayisyen)</option>
+          <option id="langopt-ha" value="ha">Hausa (Hausa)</option>
+          <option id="langopt-haw" value="haw">Hawaiian (Ōlelo Hawaiʻi)</option>
+          <option id="langopt-he" value="he">Hebrew (עברית)</option>
+          <option id="langopt-hi" value="hi">Hindi (हिंदी)</option>
+          <option id="langopt-hmn" value="hmn">Hmong (Hmoob)</option>
+          <option id="langopt-hu" value="hu">Hungarian (Magyar)</option>
+          <option id="langopt-is" value="is">Icelandic (Íslensku)</option>
+          <option id="langopt-ig" value="ig">Igbo (Igbo)</option>
+          <option id="langopt-id" value="id">Indonesian (bahasa Indonesia)</option>
+          <option id="langopt-ga" value="ga">Irish (Gaeilge)</option>
+          <option id="langopt-it" value="it">Italian (italiano)</option>
+          <option id="langopt-ja" value="ja">Japanese (日本語)</option>
+          <option id="langopt-jw" value="jw">Javanese (Jawa)</option>
+          <option id="langopt-kn" value="kn">Kannada (ಕನ್ನಡ)</option>
+          <option id="langopt-kk" value="kk">Kazakh (Қазақша)</option>
+          <option id="langopt-km" value="km">Khmer (ភាសាខ្មែរ)</option>
+          <option id="langopt-ko" value="ko">Korean (한국어)</option>
+          <option id="langopt-ku" value="ku">Kurdish (Kurdî)</option>
+          <option id="langopt-ky" value="ky">Kyrgyz (Кыргызча)</option>
+          <option id="langopt-lo" value="lo">Lao (ລາວ)</option>
+          <option id="langopt-la" value="la">Latin (Latine)</option>
+          <option id="langopt-lv" value="lv">Latvian (Latviešu valoda)</option>
+          <option id="langopt-lt" value="lt">Lithuanian (Lietuvių)</option>
+          <option id="langopt-lb" value="lb">Luxembourgish (Lëtzebuergesch)</option>
+          <option id="langopt-mk" value="mk">Macedonian (Македонски)</option>
+          <option id="langopt-mg" value="mg">Malagasy (Malagasy)</option>
+          <option id="langopt-ms" value="ms">Malay (Melayu)</option>
+          <option id="langopt-ml" value="ml">Malayalam (മലയാളം)</option>
+          <option id="langopt-mt" value="mt">Maltese (Malti)</option>
+          <option id="langopt-mi" value="mi">Maori (Maori)</option>
+          <option id="langopt-mr" value="mr">Marathi (मराठी)</option>
+          <option id="langopt-mn" value="mn">Mongolian (Монгол хэл дээр)</option>
+          <option id="langopt-my" value="my">Myanmar (Burmese) (မြန်မာ (ဗမာ))</option>
+          <option id="langopt-ne" value="ne">Nepali (नेपाली)</option>
+          <option id="langopt-no" value="no">Norwegian (norsk)</option>
+          <option id="langopt-ny" value="ny">Nyanja (Chichewa)</option>
+          <option id="langopt-ps" value="ps">Pashto (پښتو)</option>
+          <option id="langopt-fa" value="fa">Persian (فارسی)</option>
+          <option id="langopt-pl" value="pl">Polish (Polskie)</option>
+          <option id="langopt-pt" value="pt">Portuguese (Portugal, Brazil) (Português)</option>
+          <option id="langopt-pa" value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+          <option id="langopt-ro" value="ro">Romanian (Română)</option>
+          <option id="langopt-ru" value="ru">Russian (русский)</option>
+          <option id="langopt-sm" value="sm">Samoan (Samoa)</option>
+          <option id="langopt-gd" value="gd">Scots Gaelic (Gàidhlig na h-Alba)</option>
+          <option id="langopt-sr" value="sr">Serbian (Српски)</option>
+          <option id="langopt-st" value="st">Sesotho (Sesotho)</option>
+          <option id="langopt-sn" value="sn">Shona (Shona)</option>
+          <option id="langopt-sd" value="sd">Sindhi (سنڌي)</option>
+          <option id="langopt-si" value="si">Sinhala (Sinhalese) (සිංහල)</option>
+          <option id="langopt-sk" value="sk">Slovak (slovenský)</option>
+          <option id="langopt-sl" value="sl">Slovenian (Slovenščina)</option>
+          <option id="langopt-so" value="so">Somali (Somali)</option>
+          <option id="langopt-es" value="es">Spanish (Español)</option>
+          <option id="langopt-su" value="su">Sundanese (Sunda)</option>
+          <option id="langopt-sw" value="sw">Swahili (Kiswahili)</option>
+          <option id="langopt-sv" value="sv">Swedish (svenska)</option>
+          <option id="langopt-tl" value="tl">Tagalog (Filipino)</option>
+          <option id="langopt-tg" value="tg">Tajik (Тоҷикӣ)</option>
+          <option id="langopt-ta" value="ta">Tamil (தமிழ்)</option>
+          <option id="langopt-te" value="te">Telugu (తెలుగు)</option>
+          <option id="langopt-th" value="th">Thai (ไทย)</option>
+          <option id="langopt-tr" value="tr">Turkish (Türk)</option>
+          <option id="langopt-uk" value="uk">Ukrainian (Українська)</option>
+          <option id="langopt-ur" value="ur">Urdu (اردو)</option>
+          <option id="langopt-uz" value="uz">Uzbek (O'zbek)</option>
+          <option id="langopt-vi" value="vi">Vietnamese (Tiếng Việt)</option>
+          <option id="langopt-cy" value="cy">Welsh (Cymraeg)</option>
+          <option id="langopt-xh" value="xh">Xhosa (isiXhosa)</option>
+          <option id="langopt-yi" value="yi">Yiddish (ייִדיש שפּראַך)</option>
+          <option id="langopt-yo" value="yo">Yoruba (Yorùbá)</option>
+          <option id="langopt-zu" value="zu">Zulu (Zulu)</option>
+        </select>
+
         <span id="translation-disclaimer-link">Disclaimer</span>
       </div>
     </div>
