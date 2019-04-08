@@ -548,8 +548,8 @@ class TranslationProxy
   const LANG_SELECT =<<<EOT
     <div id="translation-selector-wrapper" class="notmobile statewide-banner-left">
       <div id="translation-selector">
-
-				<select id="lang_choices" onchange="changeLanguage(this)">
+        <label for="lang_choices" style="display:none;">Select the language to display this page</label>
+				<select id="lang_choices" onchange="changeLanguage(this)" aria-labelledby="select the language to display this page">
 				  <option value="" selected>Select Language</option>
           <option id="langopt-af" value="af">Afrikaans (Afrikaans)</option>
           <option id="langopt-sq" value="sq">Albanian (shqiptar)</option>
